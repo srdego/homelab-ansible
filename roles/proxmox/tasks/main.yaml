@@ -1,0 +1,10 @@
+# Proxmox role main tasks
+
+- name: Import apt tasks
+  ansible.builtin.import_tasks: apt.yaml
+
+- name: Import service tasks
+  ansible.builtin.import_tasks: services.yaml
+
+- name: Import logging tasks
+  ansible.builtin.import_tasks: logging.yaml

@@ -1,0 +1,12 @@
+# Proxmox role logging tasks
+
+# Reduces SSD wear by configuring journald to keep logs in memory only
+- name: Force journald to keep logs in memory
+  ansible.builtin.lineinfile:
+    path: "{{ proxmox_journald_conf_path }}"
+    regexp: "{{ proxmox_journald_storage_regex }}"
+    line: "{{ proxmox_journald_storage_value }}"
+    backup: true
+  notify: Restart systemd-journald
+  tags:
+    - ssd_health

@@ -1,0 +1,47 @@
+# Proxmox role APT tasks
+
+- name: Remove enterprise repositories
+  ansible.builtin.deb822_repository:
+    name: "{{ item.name }}"
+    state: absent
+  loop: "{{ proxmox_apt_repositories_to_remove }}"
+  tags:
+    - non_subscription
+
+- name: Add non-subscription repository
+  ansible.builtin.deb822_repository:
+    name: "{{ item.name }}"
+    uris: "{{ item.uris | default(omit) }}"
+    suites: "{{ item.suites | default(omit) }}"
+    components: "{{ item.components | default(omit) }}"
+    architectures: "{{ item.architectures | default(omit) }}"
+    signed_by: "{{ item.signed_by | default(omit) }}"
+    state: present
+  loop: "{{ proxmox_apt_repositories_to_add }}"
+  tags:
+    - non_subscription
+
+- name: Refresh apt cache
+  ansible.builtin.apt:
+    update_cache: true
+  tags:
+    - non_subscription
+    - fresh_install
+    - upgrade
+
+# Proxmox should be upgraded using dist upgrade
+- name: Perform distribution upgrade
+  ansible.builtin.apt:
+    upgrade: dist
+    autoremove: true
+    autoclean: true
+  tags:
+    - fresh_install
+    - upgrade
+
+- name: Install tool packages
+  ansible.builtin.apt:
+    name: "{{ proxmox_apt_packages_to_install }}"
+    state: present
+  tags:
+    - fresh_install

@@ -1,0 +1,21 @@
+# Proxmox role services tasks
+
+# Improves SSD health avoiding constant write operations
+- name: Disable and stop Proxmox HA and cluster services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: false
+    state: stopped
+  loop: "{{ proxmox_ha_and_cluster_services_to_disable }}"
+  tags:
+    - single_node
+    - ssd_health
+
+# Trim SSDs regularly to maintain performance
+- name: Ensure SSD trim timer stays active
+  ansible.builtin.systemd:
+    name: "{{ proxmox_trim_timer_unit }}"
+    enabled: true
+    state: started
+  tags:
+    - ssd_health

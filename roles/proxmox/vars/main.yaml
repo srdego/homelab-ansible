@@ -1,0 +1,33 @@
+# Proxmox role variables
+
+# Proxmox repositories configuration
+proxmox_release: "{{ ansible_facts['distribution_release'] | lower }}"
+proxmox_gpg_keyring_path: "/usr/share/keyrings/proxmox-archive-keyring.gpg"
+proxmox_architecture: amd64
+
+# APT repository management with deb822 format
+proxmox_apt_repositories_to_remove:
+  # Names are actual filenames in `/etc/apt/sources.list.d/` without
+  # the `.sources` extension
+  - name: pve-enterprise # subscription proxmox repository
+  - name: ceph # subscription ceph repository
+
+proxmox_apt_repositories_to_add:
+  - name: proxmox # non-subscription proxmox repository
+    uris: [http://download.proxmox.com/debian/pve]
+    suites: ["{{ proxmox_release }}"]
+    components: [pve-no-subscription]
+    architectures: ["{{ proxmox_architecture }}"]
+    signed_by: "{{ proxmox_gpg_keyring_path }}"
+
+# APT packages management
+proxmox_apt_packages_to_install: [intel-microcode, lm-sensors, vim]
+
+# Service management for single-node installs
+proxmox_ha_and_cluster_services_to_disable: [pve-ha-lrm, pve-ha-crm, corosync]
+
+# SSD health and logging
+proxmox_trim_timer_unit: fstrim.timer
+proxmox_journald_conf_path: /etc/systemd/journald.conf
+proxmox_journald_storage_regex: '^#?\s*Storage='
+proxmox_journald_storage_value: Storage=volatile
