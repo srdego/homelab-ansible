@@ -2,7 +2,6 @@
 
 - name: Proxmox VE post-installation configuration
   hosts: proxmox
-  become: true
   gather_facts: true
 
   roles:
