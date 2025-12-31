@@ -31,3 +31,21 @@ proxmox_trim_timer_unit: fstrim.timer
 proxmox_journald_conf_path: /etc/systemd/journald.conf
 proxmox_journald_storage_regex: '^#?\s*Storage='
 proxmox_journald_storage_value: Storage=volatile
+
+# SSH hardening
+proxmox_ssh_user: "{{ ansible_user | lower }}"
+proxmox_ssh_pub_key_path: "~/.ssh/homelab.pub" # path to public key file on control node
+proxmox_ssh_authorized_accounts:
+  - user: "{{ proxmox_ssh_user }}"
+    key: "{{ proxmox_ssh_pub_key_path }}"
+
+proxmox_sshd_config_path: /etc/ssh/sshd_config
+proxmox_sshd_directives:
+  - regexp: '^#?\s*PasswordAuthentication\s+'
+    line: PasswordAuthentication no
+  - regexp: '^#?\s*PermitEmptyPasswords\s+'
+    line: PermitEmptyPasswords no
+  - regexp: '^#?\s*ChallengeResponseAuthentication\s+'
+    line: ChallengeResponseAuthentication no
+  - regexp: '^#?\s*PubkeyAuthentication\s+'
+    line: PubkeyAuthentication yes

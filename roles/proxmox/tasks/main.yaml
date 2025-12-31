@@ -6,5 +6,8 @@
 - name: Import service tasks
   ansible.builtin.import_tasks: services.yaml
 
+- name: Import security tasks
+  ansible.builtin.import_tasks: security.yaml
+
 - name: Import logging tasks
   ansible.builtin.import_tasks: logging.yaml

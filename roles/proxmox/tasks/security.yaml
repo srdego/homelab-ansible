@@ -1,0 +1,33 @@
+# Proxmox role security tasks
+
+- name: Verify that the provided SSH public key file exists
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.stat:
+    path: "{{ proxmox_ssh_pub_key_path }}"
+  register: local_key_file
+  failed_when: not local_key_file.stat.exists
+  tags:
+    - ssh_hardening
+
+- name: Add authorized SSH keys
+  ansible.posix.authorized_key:
+    user: "{{ item.user }}"
+    key: "{{ lookup('file', item.key) }}"
+    state: present
+    manage_dir: true
+  loop: "{{ proxmox_ssh_authorized_accounts }}"
+  tags:
+    - ssh_hardening
+
+- name: Enforce SSH pub-key-only authentication
+  ansible.builtin.lineinfile:
+    path: "{{ proxmox_sshd_config_path }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    validate: "/usr/sbin/sshd -t -f %s" # prevents bad configs from being saved
+  loop: "{{ proxmox_sshd_directives }}"
+  notify: Restart sshd
+  tags:
+    - ssh_hardening
