@@ -5,8 +5,8 @@
   run_once: true
   ansible.builtin.stat:
     path: "{{ proxmox_ssh_pub_key_path }}"
-  register: local_key_file
-  failed_when: not local_key_file.stat.exists
+  register: proxmox_local_key_file
+  failed_when: not proxmox_local_key_file.stat.exists
   tags:
     - ssh_hardening
 
